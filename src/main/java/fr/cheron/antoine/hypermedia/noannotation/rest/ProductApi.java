@@ -1,8 +1,7 @@
 package fr.cheron.antoine.hypermedia.noannotation.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import fr.cheron.antoine.hypermedia.noannotation.domain.Product;
-import fr.cheron.antoine.hypermedia.noannotation.json.reader.ProductReader;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -11,11 +10,13 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import fr.cheron.antoine.hypermedia.noannotation.Config;
+import fr.cheron.antoine.hypermedia.noannotation.domain.Product;
 import fr.cheron.antoine.hypermedia.noannotation.exceptions.ForbiddenResourceOverrideException;
 import fr.cheron.antoine.hypermedia.noannotation.exceptions.InvalidRequestBodyException;
 import fr.cheron.antoine.hypermedia.noannotation.exceptions.NotFoundResourceException;
 import fr.cheron.antoine.hypermedia.noannotation.json.JsonWriter;
-import fr.cheron.antoine.hypermedia.noannotation.services.ProductService;
+import fr.cheron.antoine.hypermedia.noannotation.json.reader.ProductReader;
+import fr.cheron.antoine.hypermedia.noannotation.repositories.ProductRepository;
 import fr.cheron.antoine.hypermedia.noannotation.utils.MonoUtils;
 import fr.cheron.antoine.hypermedia.noannotation.utils.Responses;
 
@@ -30,18 +31,18 @@ public class ProductApi {
   public static final String BASE_PATH = "";
   public static final String ONE_PRODUCT = BASE_PATH + "/{" + PRODUCT_ID_PATH_VARIABLE + "}";
 
-  private final ProductService productService;
+  private final ProductRepository productService;
 
   public final RouterFunction<ServerResponse> routerFunction;
 
-  public ProductApi(ProductService productService) {
+  public ProductApi(ProductRepository productService) {
     this.productService = productService;
 
     this.routerFunction = RouterFunctions.
         route(GET(BASE_PATH), this::getAllProducts).
         andRoute(POST(BASE_PATH).and(contentType(MediaType.APPLICATION_JSON)), this::createOneProduct).
         andRoute(GET(ONE_PRODUCT), this::getOneProductById).
-        andRoute(POST(ONE_PRODUCT).and(contentType(MediaType.APPLICATION_JSON)), this::updateOneProductById).
+        andRoute(PUT(ONE_PRODUCT).and(contentType(MediaType.APPLICATION_JSON)), this::updateOneProductById).
         andRoute(DELETE(ONE_PRODUCT), this::deleteOneProductById);
   }
 
