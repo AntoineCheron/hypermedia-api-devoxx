@@ -3,7 +3,6 @@ package fr.cheron.antoine.hypermedia.noannotation.utils;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import fr.cheron.antoine.hypermedia.noannotation.exceptions.NotFoundResourceException;
 import reactor.core.publisher.Mono;
 
 public class MonoUtils {

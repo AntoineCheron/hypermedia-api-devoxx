@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
 import reactor.core.publisher.Mono;
 
 import fr.cheron.antoine.hypermedia.noannotation.Config;
@@ -97,7 +98,7 @@ public class ProductApi {
 
   private Mono<Product> readProductFromRequestBody(String body) {
     return MonoUtils.fromOptional(
-        ProductReader.read(body),
+        new ProductReader().read(body),
         () -> new InvalidRequestBodyException(Product.class)
     );
   }
