@@ -7,12 +7,12 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ServerWebInputException;
 
 import reactor.core.publisher.Mono;
 
 import com.github.antoinecheron.hypermedia.noannotation.Config;
 import com.github.antoinecheron.hypermedia.noannotation.exceptions.ForbiddenResourceOverrideException;
-import com.github.antoinecheron.hypermedia.noannotation.exceptions.InvalidRequestBodyException;
 import com.github.antoinecheron.hypermedia.noannotation.json.JsonWriter;
 import com.github.antoinecheron.hypermedia.noannotation.utils.Responses;
 
@@ -69,7 +69,7 @@ public class ProductApi {
       flatMap(JsonWriter::write).
       flatMap(Responses::ok).
       switchIfEmpty(Responses.notFound()).
-      onErrorResume(InvalidRequestBodyException.class, Responses::badRequest).
+      onErrorResume(ServerWebInputException.class, Responses::badRequest).
       subscribeOn(Config.APPLICATION_SCHEDULER);
   }
 
@@ -86,8 +86,8 @@ public class ProductApi {
       flatMap(this.productService::createOne).
       flatMap(JsonWriter::write).
       flatMap(Responses::ok).
+      onErrorResume(ServerWebInputException.class, Responses::badRequest).
       onErrorResume(ForbiddenResourceOverrideException.class, Responses::forbidden).
-      onErrorResume(InvalidRequestBodyException.class, Responses::badRequest).
       subscribeOn(Config.APPLICATION_SCHEDULER);
   }
 

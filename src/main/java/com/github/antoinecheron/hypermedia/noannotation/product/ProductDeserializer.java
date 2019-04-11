@@ -21,7 +21,7 @@ public class ProductDeserializer extends StdDeserializer<Product> {
     final JsonNode rootNode = parser.getCodec().readTree(parser);
 
     final var productWithoutId = rootNode.traverse(parser.getCodec()).readValueAs(ProductWithoutId.class);
-    final var id = DeserializationUtils.readTextualNode("id", parser, rootNode);
+    final var id = DeserializationUtils.Strings.required("id", parser, rootNode);
 
     return productWithoutId.toProduct(id);
   }
