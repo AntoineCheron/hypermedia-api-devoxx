@@ -1,14 +1,14 @@
-package fr.cheron.antoine.hypermedia.noannotation.json.reader;
+package com.github.antoinecheron.hypermedia.noannotation.product;
 
 import java.io.IOException;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.antoinecheron.hypermedia.noannotation.json.reader.ApplicationReader;
+import com.github.antoinecheron.hypermedia.noannotation.product.Product;
 
-import fr.cheron.antoine.hypermedia.noannotation.domain.Product;
-
-public class ProductReader implements ApplicationReader<Product> {
+public class JsonProductReader implements ApplicationReader<Product> {
 
   public Optional<Product> read(String value) {
     try {

@@ -1,4 +1,4 @@
-package fr.cheron.antoine.hypermedia.noannotation.utils;
+package com.github.antoinecheron.hypermedia.noannotation.utils;
 
 import java.util.Optional;
 import java.util.function.Supplier;

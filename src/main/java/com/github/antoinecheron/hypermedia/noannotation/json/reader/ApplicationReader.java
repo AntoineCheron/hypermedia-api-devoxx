@@ -1,4 +1,4 @@
-package fr.cheron.antoine.hypermedia.noannotation.json.reader;
+package com.github.antoinecheron.hypermedia.noannotation.json.reader;
 
 import java.util.Optional;
 

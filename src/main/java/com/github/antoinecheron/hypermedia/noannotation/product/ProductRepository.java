@@ -1,9 +1,7 @@
-package fr.cheron.antoine.hypermedia.noannotation.repositories;
+package com.github.antoinecheron.hypermedia.noannotation.product;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import fr.cheron.antoine.hypermedia.noannotation.domain.Product;
 
 public interface ProductRepository {
 
@@ -13,8 +11,8 @@ public interface ProductRepository {
 
   Mono<Boolean> deleteOneById(String id);
 
-  Mono<Boolean> createOne(Product product);
+  Mono<Product> createOne(ProductWithoutId productWithoutId);
 
-  Mono<Boolean> updateOneById(Product product);
+  Mono<Product> updateOneById(Product product);
 
 }

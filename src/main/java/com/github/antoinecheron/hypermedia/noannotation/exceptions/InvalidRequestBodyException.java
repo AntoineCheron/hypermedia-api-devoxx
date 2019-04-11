@@ -1,4 +1,4 @@
-package fr.cheron.antoine.hypermedia.noannotation.exceptions;
+package com.github.antoinecheron.hypermedia.noannotation.exceptions;
 
 public class InvalidRequestBodyException extends BadRequestException {
 

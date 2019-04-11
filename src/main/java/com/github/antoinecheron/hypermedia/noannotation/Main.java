@@ -1,7 +1,10 @@
-package fr.cheron.antoine.hypermedia.noannotation;
+package com.github.antoinecheron.hypermedia.noannotation;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.function.BiConsumer;
+
+import com.mongodb.reactivestreams.client.MongoClients;
 
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -11,6 +14,7 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -20,19 +24,23 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import reactor.netty.http.server.HttpServer;
 
-import fr.cheron.antoine.hypermedia.noannotation.rest.ProductApi;
-import fr.cheron.antoine.hypermedia.noannotation.repositories.ProductRepository;
+import com.github.antoinecheron.hypermedia.noannotation.product.ReactiveMongoProductRepository;
+import com.github.antoinecheron.hypermedia.noannotation.product.ProductApi;
+import com.github.antoinecheron.hypermedia.noannotation.product.ProductRepository;
 
 public class Main {
 
   public static void main(String[] args) {
     startEmbeddedMongo((dbHost, dbPort) -> {
-      final ProductRepository productService = null;
+      final var mongoClient = MongoClients.create("mongodb://" + dbHost + ":" + dbPort);
+      final var database = new ReactiveMongoTemplate(mongoClient, "hypermedia-example");
+
+      final ProductRepository productService = new ReactiveMongoProductRepository(database);
 
       final var routerFunction = RouterFunctions.
           nest(RequestPredicates.path("/products"), new ProductApi(productService).routerFunction);
 
-      // startHttpServer(routerFunction);
+      startHttpServer(routerFunction);
     });
 
   }
@@ -63,14 +71,21 @@ public class Main {
   }
 
   private static void startHttpServer(RouterFunction<ServerResponse> routerFunction) {
-    final HttpHandler httpHandler = RouterFunctions.toHttpHandler(routerFunction);
+    final HttpHandler httpHandler = RouterFunctions.toHttpHandler(routerFunction, Config.Spring.handlerStrategies());
     final ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(httpHandler);
 
     HttpServer.create()
         .host(Config.HOST)
         .port(Config.PORT)
         .handle(adapter)
-        .bind().block();
+        .bindUntilJavaShutdown(Duration.ofSeconds(45), (disposableServer) ->
+          System.out.println(
+              Thread.currentThread().toString()
+                  + " Server started on "
+                  + disposableServer.host()
+                  + ":" + disposableServer.port()
+          )
+        );
   }
 
 }

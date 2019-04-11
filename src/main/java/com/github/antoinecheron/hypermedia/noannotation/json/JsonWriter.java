@@ -1,4 +1,4 @@
-package fr.cheron.antoine.hypermedia.noannotation.json;
+package com.github.antoinecheron.hypermedia.noannotation.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

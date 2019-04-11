@@ -1,4 +1,4 @@
-package fr.cheron.antoine.hypermedia.noannotation.utils;
+package com.github.antoinecheron.hypermedia.noannotation.utils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.ServerResponse;
