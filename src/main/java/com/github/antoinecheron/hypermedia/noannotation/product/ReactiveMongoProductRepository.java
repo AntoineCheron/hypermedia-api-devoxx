@@ -21,8 +21,10 @@ public class ReactiveMongoProductRepository implements ProductRepository {
   }
 
   @Override
-  public Flux<Product> list() {
+  public Flux<ProductSummary> list() {
+    // TODO : find a way to have Mongo return a document that can be directly converted into a ProductSummary
     return mongoOperations.findAll(Product.class, COLLECTION_NAME)
+      .map(ProductSummary::fromProduct)
       .subscribeOn(Config.APPLICATION_SCHEDULER);
   }
 

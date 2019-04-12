@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 public interface ProductRepository {
 
-  Flux<Product> list();
+  Flux<ProductSummary> list();
 
   Mono<Product> findById(String id);
 

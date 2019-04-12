@@ -1,7 +1,7 @@
 package com.github.antoinecheron.hypermedia.noannotation.product;
 
 import java.net.URL;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,20 +13,20 @@ public class ProductWithoutId {
   protected final Integer availability;
   protected final Boolean inStock;
   protected final Optional<Integer> averageSupplyTime;
-  protected final Collection<String> colors;
-  protected final Collection<URL> photos;
+  protected final List<String> colors;
+  protected final List<URL> photos;
   protected final String shortDescription;
   protected final Optional<String> detailedDescription;
   protected final Map<String, String> specifications;
-  protected final Collection<String> frequentlySoldWithProductId;
-  protected final Collection<String> sponsoredProductIds;
-  protected final Collection<String> customersAlsoShoppedForProductIds;
+  protected final List<String> frequentlySoldWithProductId;
+  protected final List<String> sponsoredProductIds;
+  protected final List<String> customersAlsoShoppedForProductIds;
 
   public ProductWithoutId(String title, String seller, Double price, Integer availability, Boolean inStock,
-                          Optional<Integer> averageSupplyTime, Collection<String> colors, Collection<URL> photos,
+                          Optional<Integer> averageSupplyTime, List<String> colors, List<URL> photos,
                           String shortDescription, Optional<String> detailedDescription, Map<String, String> specifications,
-                          Collection<String> frequentlySoldWithProductId, Collection<String> sponsoredProductIds,
-                          Collection<String> customersAlsoShoppedForProductIds
+                          List<String> frequentlySoldWithProductId, List<String> sponsoredProductIds,
+                          List<String> customersAlsoShoppedForProductIds
   ) {
     this.title = title;
     this.seller = seller;
@@ -68,11 +68,11 @@ public class ProductWithoutId {
     return averageSupplyTime;
   }
 
-  public Collection<String> getColors() {
+  public List<String> getColors() {
     return colors;
   }
 
-  public Collection<URL> getPhotos() {
+  public List<URL> getPhotos() {
     return photos;
   }
 
@@ -88,15 +88,15 @@ public class ProductWithoutId {
     return specifications;
   }
 
-  public Collection<String> getFrequentlySoldWithProductId() {
+  public List<String> getFrequentlySoldWithProductId() {
     return frequentlySoldWithProductId;
   }
 
-  public Collection<String> getSponsoredProductIds() {
+  public List<String> getSponsoredProductIds() {
     return sponsoredProductIds;
   }
 
-  public Collection<String> getCustomersAlsoShoppedForProductIds() {
+  public List<String> getCustomersAlsoShoppedForProductIds() {
     return customersAlsoShoppedForProductIds;
   }
 
