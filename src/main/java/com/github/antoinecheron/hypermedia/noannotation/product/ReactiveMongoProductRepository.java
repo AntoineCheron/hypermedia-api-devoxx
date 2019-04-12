@@ -22,9 +22,7 @@ public class ReactiveMongoProductRepository implements ProductRepository {
 
   @Override
   public Flux<ProductSummary> list() {
-    // TODO : find a way to have Mongo return a document that can be directly converted into a ProductSummary
-    return mongoOperations.findAll(Product.class, COLLECTION_NAME)
-      .map(ProductSummary::fromProduct)
+    return mongoOperations.find(productSummaryQuery, ProductSummary.class, COLLECTION_NAME)
       .subscribeOn(Config.APPLICATION_SCHEDULER);
   }
 
@@ -61,5 +59,15 @@ public class ReactiveMongoProductRepository implements ProductRepository {
   private Criteria getIdCriteria(String id) {
     return Criteria.where("_id").is(id);
   }
+
+  private static final Query productSummaryQuery = new Query();
+  static {{
+      productSummaryQuery.fields()
+        .include("_id")
+        .include("title")
+        .include("price")
+        .include("inStock")
+        .slice("photos", 1);
+  }}
 
 }
