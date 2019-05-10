@@ -1,11 +1,9 @@
 package com.github.antoinecheron.hypermedia.noannotation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import com.typesafe.config.ConfigFactory;
 import org.springframework.core.codec.Decoder;
-import org.springframework.http.codec.DecoderHttpMessageReader;
-import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.util.MimeType;
@@ -14,9 +12,9 @@ import org.springframework.web.reactive.function.server.HandlerStrategies;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import com.github.antoinecheron.hypermedia.noannotation.product.Product;
+import com.github.antoinecheron.hypermedia.noannotation.process.ProcessCreationFormDeserializer;
+import com.github.antoinecheron.hypermedia.noannotation.process.ProcessDeserializer;
 import com.github.antoinecheron.hypermedia.noannotation.product.ProductDeserializer;
-import com.github.antoinecheron.hypermedia.noannotation.product.ProductWithoutId;
 import com.github.antoinecheron.hypermedia.noannotation.product.ProductWithoutIdDeserializer;
 
 public class Config {
@@ -33,7 +31,7 @@ public class Config {
     public static HandlerStrategies handlerStrategies() {
       return HandlerStrategies.builder()
         .codecs((serverCodecConfigurer) -> {
-          final Decoder<?> jacksonDecoder = new Jackson2JsonDecoder(Jackson.configureCustomObjectMapper(),
+          final Decoder<?> jacksonDecoder = new Jackson2JsonDecoder(Jackson.customObjectMapper,
             MimeTypeUtils.APPLICATION_JSON, MimeType.valueOf("application/*+json")
           );
 
@@ -47,16 +45,16 @@ public class Config {
   public static class Jackson {
 
     /**
-     * Configure the jackson object mapper. It contains serializers and deserializers.
-     *
-     * @return an ObjectMapper configured to suit this application's needs.
+     * Configure the jackson object mapper to suit this application's needs. It contains serializers and deserializers.
      */
-    private static ObjectMapper configureCustomObjectMapper() {
-      return Jackson2ObjectMapperBuilder.json().deserializers(
+    public static final ObjectMapper customObjectMapper = Jackson2ObjectMapperBuilder.json()
+      .deserializers(
         new ProductDeserializer(),
-        new ProductWithoutIdDeserializer()
-      ).build();
-    }
+        new ProductWithoutIdDeserializer(),
+        new ProcessDeserializer(),
+        new ProcessCreationFormDeserializer()
+      )
+      .build();
 
   }
 
