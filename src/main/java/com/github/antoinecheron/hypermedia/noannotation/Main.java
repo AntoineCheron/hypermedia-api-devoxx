@@ -21,8 +21,12 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServer;
 
+import com.github.antoinecheron.hypermedia.noannotation.process.ProcessApi;
+import com.github.antoinecheron.hypermedia.noannotation.process.ProcessRepository;
+import com.github.antoinecheron.hypermedia.noannotation.process.ReactiveMongoProcessRepository;
 import com.github.antoinecheron.hypermedia.noannotation.product.ReactiveMongoProductRepository;
 import com.github.antoinecheron.hypermedia.noannotation.product.ProductApi;
 import com.github.antoinecheron.hypermedia.noannotation.product.ProductRepository;
@@ -34,9 +38,11 @@ public class Main {
       final var database = new MongoConfiguration().getMongoOperations(dbHost, dbPort);
 
       final ProductRepository productService = new ReactiveMongoProductRepository(database);
+      final ProcessRepository processService = new ReactiveMongoProcessRepository(database);
 
-      final var routerFunction = RouterFunctions.
-          nest(RequestPredicates.path("/products"), new ProductApi(productService).routerFunction);
+      final var routerFunction = RouterFunctions
+        .nest(RequestPredicates.path("/products"), new ProductApi(productService).routerFunction)
+        .andNest(RequestPredicates.path("/process"), new ProcessApi(processService).routerFunction);
 
       startHttpServer(routerFunction);
     });

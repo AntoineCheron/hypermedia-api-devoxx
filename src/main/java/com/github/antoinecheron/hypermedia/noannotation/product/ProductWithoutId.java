@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class ProductWithoutId {
+import com.github.antoinecheron.hypermedia.noannotation.abstractions.CreationFormOf;
+
+public class ProductWithoutId implements CreationFormOf<Product> {
 
   protected final String title;
   protected final String seller;
@@ -100,7 +102,7 @@ public class ProductWithoutId {
     return customersAlsoShoppedForProductIds;
   }
 
-  public Product toProduct(String id) {
+  public Product provideId(String id) {
     return new Product(id, title, seller, price, availability, inStock, averageSupplyTime, colors, photos,
       shortDescription, detailedDescription, specifications, frequentlySoldWithProductId, sponsoredProductIds,
       customersAlsoShoppedForProductIds);

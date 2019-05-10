@@ -1,9 +1,8 @@
 package com.github.antoinecheron.hypermedia.noannotation.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,9 +61,7 @@ public abstract class DeserializationUtils {
 
   public static class Booleans {
     public static Boolean required(String fieldName, JsonParser parser, JsonNode node) throws JsonMappingException {
-      return getNode(node, fieldName)
-        .filter(JsonNode::isBoolean)
-        .map(JsonNode::asBoolean)
+      return optional(fieldName, node)
         .orElseThrow(() -> new JsonMappingException(parser, "Missing boolean '" + fieldName + "' property"));
     }
 
@@ -117,6 +114,26 @@ public abstract class DeserializationUtils {
         .orElse(Stream.empty());
     }
 
+  }
+
+  public static class Dates {
+    public static Date required(String fieldName, JsonParser parser, JsonNode node) throws JsonMappingException  {
+      return optional(fieldName, node)
+        .orElseThrow(() -> new JsonMappingException(parser, "Missing date '" + fieldName + "' property"));
+    }
+
+    public static Optional<Date> optional(String fieldName, JsonNode node) {
+      return getNode(node, fieldName)
+        .filter(JsonNode::isTextual)
+        .map(JsonNode::asText)
+        .flatMap(dateAsText -> {
+          try {
+            return Optional.of(DateFormat.getDateInstance().parse(dateAsText));
+          } catch (ParseException e) {
+            return Optional.empty();
+          }
+        });
+    }
   }
 
   public static Optional<JsonNode> getNode(JsonNode node, String name) {

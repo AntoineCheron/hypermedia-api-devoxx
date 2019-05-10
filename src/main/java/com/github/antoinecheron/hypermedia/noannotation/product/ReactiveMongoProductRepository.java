@@ -41,7 +41,7 @@ public class ReactiveMongoProductRepository implements ProductRepository {
 
   @Override
   public Mono<Product> createOne(ProductWithoutId productWithoutId) {
-    var product = productWithoutId.toProduct(UUID.randomUUID().toString());
+    var product = productWithoutId.provideId(UUID.randomUUID().toString());
     return mongoOperations.insert(product, COLLECTION_NAME)
       .subscribeOn(Config.APPLICATION_SCHEDULER);
   }
