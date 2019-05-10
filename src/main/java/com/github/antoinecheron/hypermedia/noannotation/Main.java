@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.function.BiConsumer;
 
-import com.mongodb.reactivestreams.client.MongoClients;
+import com.github.antoinecheron.hypermedia.noannotation.configuration.MongoConfiguration;
 
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -14,7 +14,6 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.reactive.function.server.RequestPredicates;
@@ -32,8 +31,7 @@ public class Main {
 
   public static void main(String[] args) {
     startEmbeddedMongo((dbHost, dbPort) -> {
-      final var mongoClient = MongoClients.create("mongodb://" + dbHost + ":" + dbPort);
-      final var database = new ReactiveMongoTemplate(mongoClient, "hypermedia-example");
+      final var database = new MongoConfiguration().getMongoOperations(dbHost, dbPort);
 
       final ProductRepository productService = new ReactiveMongoProductRepository(database);
 
