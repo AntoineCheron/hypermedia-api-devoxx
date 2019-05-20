@@ -1,18 +1,6 @@
 package com.github.antoinecheron.hypermedia.notannotated;
 
-import java.io.IOException;
 import java.time.Duration;
-import java.util.function.BiConsumer;
-
-import com.github.antoinecheron.hypermedia.notannotated.configuration.MongoConfiguration;
-
-import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.IMongodConfig;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.runtime.Network;
 
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
@@ -21,56 +9,35 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServer;
 
-import com.github.antoinecheron.hypermedia.notannotated.process.ProcessApi;
-import com.github.antoinecheron.hypermedia.notannotated.process.ProcessRepository;
-import com.github.antoinecheron.hypermedia.notannotated.process.ReactiveMongoProcessRepository;
+import com.github.antoinecheron.hypermedia.notannotated.configuration.MongoConfiguration;
+import com.github.antoinecheron.hypermedia.notannotated.process.*;
 import com.github.antoinecheron.hypermedia.notannotated.product.ReactiveMongoProductRepository;
 import com.github.antoinecheron.hypermedia.notannotated.product.ProductApi;
-import com.github.antoinecheron.hypermedia.notannotated.product.ProductRepository;
+import com.github.antoinecheron.hypermedia.notannotated.user.*;
 
 public class Main {
 
   public static void main(String[] args) {
-    startEmbeddedMongo((dbHost, dbPort) -> {
-      final var database = new MongoConfiguration().getMongoOperations(dbHost, dbPort);
+    final var database = MongoConfiguration.getMongoOperations();
 
-      final ProductRepository productService = new ReactiveMongoProductRepository(database);
-      final ProcessRepository processService = new ReactiveMongoProcessRepository(database);
+    final var productService = new ReactiveMongoProductRepository(database);
+    final var processService = new ReactiveMongoProcessRepository(database);
+    final var userService = new ReactiveMongoUserRepository(database);
 
-      final var routerFunction = RouterFunctions
-        .nest(RequestPredicates.path("/products"), new ProductApi(productService).routerFunction)
-        .andNest(RequestPredicates.path("/process"), new ProcessApi(processService).routerFunction);
+    insertDataOnStartup(userService, processService);
 
-      startHttpServer(routerFunction);
-    });
+    final var userApi = new UserConnexionApi(userService);
 
-  }
+    final var routerFunction = RouterFunctions
+      .nest(RequestPredicates.path("/products"), new ProductApi(productService).routerFunction)
+      .andNest(RequestPredicates.path("/process"), new ProcessApi(processService).routerFunction)
+      .andRoute(RequestPredicates.POST(UserConnexionApi.DEFAULT_LOGIN_PATH), userApi::login)
+      .andRoute(RequestPredicates.POST(UserConnexionApi.DEFAULT_REGISTRATION_PATH), userApi::register);
 
-  private static void startEmbeddedMongo(BiConsumer<String, Integer> callback) {
-    MongodStarter starter = MongodStarter.getDefaultInstance();
-    MongodExecutable mongodExecutable = null;
-
-    String bindIp = "localhost";
-    int port = 12345;
-
-    try {
-      IMongodConfig mongodConfig = new MongodConfigBuilder()
-          .version(Version.Main.PRODUCTION)
-          .net(new Net(bindIp, port, Network.localhostIsIPv6()))
-          .build();
-
-      mongodExecutable = starter.prepare(mongodConfig);
-      mongodExecutable.start();
-
-      callback.accept(bindIp, port);
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (mongodExecutable != null)
-        mongodExecutable.stop();
-    }
+    startHttpServer(routerFunction);
   }
 
   private static void startHttpServer(RouterFunction<ServerResponse> routerFunction) {
@@ -78,17 +45,37 @@ public class Main {
     final ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(httpHandler);
 
     HttpServer.create()
-        .host(Config.HOST)
-        .port(Config.PORT)
-        .handle(adapter)
-        .bindUntilJavaShutdown(Duration.ofSeconds(45), (disposableServer) ->
-          System.out.println(
-              Thread.currentThread().toString()
-                  + " Server started on "
-                  + disposableServer.host()
-                  + ":" + disposableServer.port()
-          )
-        );
+      .host(Config.HOST)
+      .port(Config.PORT)
+      .handle(adapter)
+      .bindUntilJavaShutdown(Duration.ofSeconds(45), (disposableServer) ->
+        System.out.println(
+          Thread.currentThread().toString()
+            + " Server started on "
+            + disposableServer.host()
+            + ":" + disposableServer.port()
+        )
+      );
+  }
+
+  private static void insertDataOnStartup(UserRepository userRepository, ProcessRepository processService) {
+    final var firstManagerMono = userRepository.addUser(
+      new UserCreationFormWithRole("Foo", "Bar", "foo@bar.io", "pass", "pass", UserRole.BANK_MANAGER)
+    );
+
+    firstManagerMono.flatMap(firstManager -> {
+      final var firstClientMono = userRepository.addUser(
+        new UserCreationFormWithRole("Client", "Bar", "client@bar.io", "pass2", "pass2", UserRole.CLIENT)
+      );
+
+      return Mono.zip(Mono.just(firstManager), firstClientMono);
+    }).flatMap(tuple -> {
+      final var firstManager = tuple.getT1();
+      final var firstClient = tuple.getT2();
+
+      return processService.createOne(new ProcessCreationForm("Housing loan", firstManager.getId(), firstClient.getId(), firstManager.getId(), firstManager.getId(), ProcessCategory.HOUSING_LOAN, "Description"));
+    }).subscribeOn(Config.APPLICATION_SCHEDULER)
+      .subscribe(ignoredProcess -> System.out.println("Initial data successfully pushed into the database"));
   }
 
 }

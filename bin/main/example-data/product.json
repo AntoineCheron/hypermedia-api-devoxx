@@ -1,0 +1,10 @@
+{
+  "title": "A cheap product",
+  "price": 1,
+  "seller": "1234",
+  "availability": 999999,
+  "inStock": true,
+  "colors": ["blue", "black", "white"],
+  "photos": ["https://example.com/image1.jpeg", "https://example.com/image2.jpeg"],
+  "shortDescription": "Selling a cheap and useless product. Please buy"
+}

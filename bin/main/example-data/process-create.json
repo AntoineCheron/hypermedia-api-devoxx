@@ -1,0 +1,9 @@
+{
+  "name": "Housing loan",
+  "createdBy": "1234",
+  "client": "1234",
+  "advisor": "bank-employee-1",
+  "manager": "bank-employee-2",
+  "category": "HOUSING_LOAN",
+  "description": "A housing loan for a flat in Paris"
+}

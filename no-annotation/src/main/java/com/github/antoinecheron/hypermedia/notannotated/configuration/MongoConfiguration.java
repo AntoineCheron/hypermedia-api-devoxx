@@ -8,21 +8,20 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
+import com.github.antoinecheron.hypermedia.notannotated.Config;
+
 public class MongoConfiguration {
 
-  private static final String DATABASE_NAME = "hypermedia-example";
-
-  public MongoClient getMongoClient(String host, int port) {
-
+  private static MongoClient getMongoClient(String uri) {
     final var settings = MongoClientSettings.builder()
-      .applyConnectionString(new ConnectionString("mongodb://" + host + ":" + port))
+      .applyConnectionString(new ConnectionString(uri))
       .build();
 
     return MongoClients.create(settings);
   }
 
-  public ReactiveMongoOperations getMongoOperations(String host, int port) {
-    return new ReactiveMongoTemplate(getMongoClient(host, port), DATABASE_NAME);
+  public static ReactiveMongoOperations getMongoOperations() {
+    return new ReactiveMongoTemplate(getMongoClient(Config.DB_URI), Config.DB_NAME);
   }
 
 }

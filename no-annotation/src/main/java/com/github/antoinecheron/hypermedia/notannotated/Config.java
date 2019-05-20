@@ -26,6 +26,9 @@ public class Config {
 
   public static final Scheduler APPLICATION_SCHEDULER = Schedulers.elastic();
 
+  public static final String DB_URI = configuration.getString("db.uri");
+  public static final String DB_NAME = configuration.getString("db.name");
+
   public static class Spring {
 
     public static HandlerStrategies handlerStrategies() {
@@ -56,6 +59,10 @@ public class Config {
       )
       .build();
 
+  }
+
+  public static byte[] getJwtSigningKeyFromApplicationConfiguration() {
+    return configuration.getString("jwt.secret").getBytes();
   }
 
 }
