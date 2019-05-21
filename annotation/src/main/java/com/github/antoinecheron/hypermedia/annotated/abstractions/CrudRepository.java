@@ -3,7 +3,7 @@ package com.github.antoinecheron.hypermedia.annotated.abstractions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface CrudRepository<T, CREATION_FORM extends CreationFormOf<T>, SUMMARY> {
+public interface CrudRepository<T, CREATION_FORM extends CreationFormOf<T>, SUMMARY> extends FindByIdRepository<T> {
 
   Flux<SUMMARY> list();
 

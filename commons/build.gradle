@@ -1,0 +1,21 @@
+group 'com.github.antoinecheron'
+version '0.0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 10
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.springframework', name: 'spring-webflux', version: '5.1.6.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version: '5.1.6.RELEASE'
+    compile group: 'io.projectreactor.netty', name: 'reactor-netty', version: '0.8.6.RELEASE'
+
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.26'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

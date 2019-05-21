@@ -1,4 +1,4 @@
 rootProject.name = 'Hypermedia Api Spring Example'
 include 'no-annotation'
 include 'annotation'
-
+include 'resource'
