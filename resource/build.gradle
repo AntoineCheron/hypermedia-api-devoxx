@@ -17,6 +17,9 @@ dependencies {
     compile group: 'io.projectreactor', name: 'reactor-core', version: '3.2.9.RELEASE'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.5'
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.9.5'
+    compile 'org.springframework:spring-aop:5.1.6.RELEASE'
+    compile 'org.aspectj:aspectjtools:1.9.2'
+    runtime 'org.aspectj:aspectjrt:1.9.2'
 
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'

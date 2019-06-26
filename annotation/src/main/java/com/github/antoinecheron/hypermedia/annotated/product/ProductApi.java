@@ -1,23 +1,17 @@
 package com.github.antoinecheron.hypermedia.annotated.product;
 
-import lombok.Getter;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import com.github.antoinecheron.hypermedia.resource.Resource;
-import com.github.antoinecheron.hypermedia.resource.WithResource;
-
 @RestController
 @RequestMapping("/products")
-public class ProductApi implements WithResource<Product> {
+public class ProductApi {
 
   private final ProductRepository productRepository;
-  @Getter private final Resource<Product> resource;
 
-  public ProductApi(ProductRepository productRepository, Resource<Product> productResource) {
+  public ProductApi(ProductRepository productRepository) {
     this.productRepository = productRepository;
-    this.resource = productResource;
   }
 
   @GetMapping
@@ -26,7 +20,7 @@ public class ProductApi implements WithResource<Product> {
   }
 
   @GetMapping("/{id}")
-  public Mono<Product> getOneById(@PathVariable String id) {
+  public Mono<? extends Object> getOneById(@PathVariable String id) {
     return this.productRepository.findById(id);
   }
 
@@ -42,7 +36,7 @@ public class ProductApi implements WithResource<Product> {
   }
 
   @PostMapping
-  public Mono<Product> createOne(@RequestBody ProductWithoutId process) {
+  public Mono<? extends Object> createOne(@RequestBody ProductWithoutId process) {
     return this.productRepository.createOne(process);
   }
 

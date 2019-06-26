@@ -5,7 +5,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import com.github.antoinecheron.hypermedia.resource.EnableResourceAbstraction;
+
 @SpringBootApplication
+@EnableResourceAbstraction
 public class Main {
 
   private final EmbeddedMongo embeddedMongo;

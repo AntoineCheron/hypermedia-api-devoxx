@@ -1,5 +1,7 @@
 package com.github.antoinecheron.hypermedia.resource.links;
 
+import java.util.function.Function;
+
 import org.springframework.hateoas.Link;
 import reactor.core.publisher.Mono;
 
@@ -7,20 +9,26 @@ import com.github.antoinecheron.hypermedia.resource.HypermediaControlBuilder;
 
 public class ExternalHyperlink<T> implements HypermediaControlBuilder<T> {
 
-  private final Link link;
+  private final String name;
+  private final Function<T, String> linkBuilder;
 
   public ExternalHyperlink(String name, String url) {
-    this.link = new Link(url, name);
+    this(name, unused -> url);
+  }
+
+  public ExternalHyperlink(String name, Function<T, String> linkBuilder) {
+    this.name = name;
+    this.linkBuilder = linkBuilder;
   }
 
   @Override
   public String getRelation() {
-    return link.getRel().value();
+    return name;
   }
 
   @Override
   public Mono<Link> build(T resource) {
-    return Mono.just(link);
+    return Mono.fromCallable(() -> new Link(this.name, this.linkBuilder.apply(resource)));
   }
 
 }

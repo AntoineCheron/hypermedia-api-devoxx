@@ -21,6 +21,10 @@ public class ProductResource {
         .alwaysAvailable("delete", (product, api) -> api.deleteOneById(product.getId()))
       .withExternalLinks()
         .toUrlAlwaysAvailable("amazon", "https://www.amazon.fr/")
+        .toUrlAlwaysAvailable(
+          "searchOnAmazon",
+          product -> "https://www.amazon.fr/s?k=" + product.getTitle().replace(' ', '+')
+        )
       .build();
   }
 

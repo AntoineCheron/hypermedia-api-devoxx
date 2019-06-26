@@ -2,6 +2,7 @@ package com.github.antoinecheron.hypermedia.resource;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.github.antoinecheron.hypermedia.resource.links.ExternalHyperlink;
@@ -149,8 +150,20 @@ public final class ResourceBuilder<T, C> {
       return this;
     }
 
+    public ExternalLinks toUrl(String relationName, Function<T, String> urlBuilder, Predicate<T> predicate) {
+      this.externalLinksResolver.put(
+        relationName,
+        new LinkHolder<>(predicate, new ExternalHyperlink<>(relationName, urlBuilder))
+      );
+      return this;
+    }
+
     public ExternalLinks toUrlAlwaysAvailable(String relationName, String url) {
       return toUrl(relationName, url, ALWAYS_AVAILABLE);
+    }
+
+    public ExternalLinks toUrlAlwaysAvailable(String relationName, Function<T, String> urlBuilder) {
+      return toUrl(relationName, urlBuilder, ALWAYS_AVAILABLE);
     }
 
     public ExternalLinks toOperation(String relationName, String swaggerUrl, String operationId, Predicate<T> predicate) {
