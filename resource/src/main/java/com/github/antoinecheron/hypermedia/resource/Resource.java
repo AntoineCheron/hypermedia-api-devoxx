@@ -10,6 +10,8 @@ import org.springframework.hateoas.Link;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import com.github.antoinecheron.hypermedia.resource.links.HypermediaControlBuilder;
+
 public class Resource<T> {
 
   @Getter private final Class<T> resourceType;
@@ -76,11 +78,6 @@ public class Resource<T> {
       .collect(Collectors.toList());
 
     return Flux.merge(links).collectList();
-  }
-
-  public boolean isResourceOf(Object o) {
-    // TODO : check all subclasses except Object (unit test)
-    return this.resourceType.isAssignableFrom(o.getClass());
   }
 
   public static <A, C> ResourceBuilder<A, C> builder(Class<A> resourceClass, Class<C> controllerClass) {

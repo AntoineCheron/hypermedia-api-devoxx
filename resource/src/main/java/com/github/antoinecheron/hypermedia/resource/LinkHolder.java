@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.hateoas.Link;
 import reactor.core.publisher.Mono;
 
+import com.github.antoinecheron.hypermedia.resource.links.HypermediaControlBuilder;
+
 @AllArgsConstructor
 public class LinkHolder<T> {
 

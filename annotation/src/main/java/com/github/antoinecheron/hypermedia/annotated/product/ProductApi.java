@@ -20,7 +20,7 @@ public class ProductApi {
   }
 
   @GetMapping("/{id}")
-  public Mono<? extends Object> getOneById(@PathVariable String id) {
+  public Mono<Product> getOneById(@PathVariable String id) {
     return this.productRepository.findById(id);
   }
 

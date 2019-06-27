@@ -6,8 +6,6 @@ import lombok.Getter;
 import org.springframework.hateoas.Link;
 import reactor.core.publisher.Mono;
 
-import com.github.antoinecheron.hypermedia.resource.HypermediaControlBuilder;
-
 import static org.springframework.hateoas.server.reactive.WebFluxLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.reactive.WebFluxLinkBuilder.methodOn;
 

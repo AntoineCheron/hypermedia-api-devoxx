@@ -8,8 +8,6 @@ import lombok.Getter;
 import org.springframework.hateoas.Link;
 import reactor.core.publisher.Mono;
 
-import com.github.antoinecheron.hypermedia.resource.HypermediaControlBuilder;
-
 public class ExternalHypermediaControl<T> implements HypermediaControlBuilder<T> {
 
   @Getter private final String relation;

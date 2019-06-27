@@ -1,13 +1,14 @@
 package com.github.antoinecheron.hypermedia.resource;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.github.antoinecheron.hypermedia.resource.links.ExternalHyperlink;
 import com.github.antoinecheron.hypermedia.resource.links.ExternalHypermediaControl;
+import com.github.antoinecheron.hypermedia.resource.links.HypermediaControlBuilder;
 import com.github.antoinecheron.hypermedia.resource.links.InternalOperationLink;
+import com.github.antoinecheron.hypermedia.resource.providers.LinkProvider;
+import com.github.antoinecheron.hypermedia.resource.providers.OperationProvider;
 
 public final class ResourceBuilder<T, C> {
 
@@ -25,7 +26,7 @@ public final class ResourceBuilder<T, C> {
     return new ResourceBuilder<>(resourceType, controllerClass);
   }
 
-  public ResourceBuilder<T, C> self(BiFunction<T, C, ?> methodCall) {
+  public ResourceBuilder<T, C> withSelfLink(OperationProvider<T, C> methodCall) {
     this.selfLinkBuilder = Optional.of(new InternalOperationLink<>("self", controllerClass, methodCall));
     return this;
   }
@@ -60,7 +61,7 @@ public final class ResourceBuilder<T, C> {
       this.selfOperationsResolver = new HashMap<>();
     }
 
-    public Operations availableIf(String relation, Predicate<T> predicate, BiFunction<T, C, ?> methodCall) {
+    public Operations operation(String relation, Predicate<T> predicate, OperationProvider<T, C> methodCall) {
       this.selfOperationsResolver.put(relation,
         new LinkHolder<>(
           predicate,
@@ -70,8 +71,8 @@ public final class ResourceBuilder<T, C> {
       return this;
     }
 
-    public Operations alwaysAvailable(String name, BiFunction<T, C, ?> methodCall) {
-      return availableIf(name, ALWAYS_AVAILABLE, methodCall);
+    public Operations operation(String name, OperationProvider<T, C> methodCall) {
+      return operation(name, ALWAYS_AVAILABLE, methodCall);
     }
 
     public InternalLinks withInternalLinks() {
@@ -102,7 +103,7 @@ public final class ResourceBuilder<T, C> {
       this.internalLinksResolver = new HashMap<>();
     }
 
-    public <C> InternalLinks availableIf(String relation, Predicate<T> predicate, Class<C> controllerClass, BiFunction<T, C, ?> methodCall) {
+    public <C> InternalLinks availableIf(String relation, Predicate<T> predicate, Class<C> controllerClass, OperationProvider<T, C> methodCall) {
       this.selfOperationsResolver.put(relation,
         new LinkHolder<>(
           predicate,
@@ -112,7 +113,7 @@ public final class ResourceBuilder<T, C> {
       return this;
     }
 
-    public <C> InternalLinks alwaysAvailable(String name, Class<C> controllerClass, BiFunction<T, C, ?> methodCall) {
+    public <C> InternalLinks alwaysAvailable(String name, Class<C> controllerClass, OperationProvider<T, C> methodCall) {
       return availableIf(name, ALWAYS_AVAILABLE, controllerClass, methodCall);
     }
 
@@ -150,7 +151,7 @@ public final class ResourceBuilder<T, C> {
       return this;
     }
 
-    public ExternalLinks toUrl(String relationName, Function<T, String> urlBuilder, Predicate<T> predicate) {
+    public ExternalLinks toUrl(String relationName, LinkProvider<T> urlBuilder, Predicate<T> predicate) {
       this.externalLinksResolver.put(
         relationName,
         new LinkHolder<>(predicate, new ExternalHyperlink<>(relationName, urlBuilder))
@@ -162,7 +163,7 @@ public final class ResourceBuilder<T, C> {
       return toUrl(relationName, url, ALWAYS_AVAILABLE);
     }
 
-    public ExternalLinks toUrlAlwaysAvailable(String relationName, Function<T, String> urlBuilder) {
+    public ExternalLinks toUrlAlwaysAvailable(String relationName, LinkProvider<T> urlBuilder) {
       return toUrl(relationName, urlBuilder, ALWAYS_AVAILABLE);
     }
 

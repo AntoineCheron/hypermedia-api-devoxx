@@ -1,10 +1,10 @@
-package com.github.antoinecheron.hypermedia.resource;
+package com.github.antoinecheron.hypermedia.resource.spring;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-import com.github.antoinecheron.hypermedia.resource.aspects.LinksGeneratorAspect;
+import com.github.antoinecheron.hypermedia.resource.spring.aspects.LinksGeneratorAspect;
 
 @Configuration
 @EnableAspectJAutoProxy

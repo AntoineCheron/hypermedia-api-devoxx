@@ -1,4 +1,4 @@
-package com.github.antoinecheron.hypermedia.resource;
+package com.github.antoinecheron.hypermedia.resource.spring;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Import;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Import(com.github.antoinecheron.hypermedia.resource.ResourceConfiguration.class)
+@Import(ResourceConfiguration.class)
 public @interface EnableResourceAbstraction {}

@@ -5,8 +5,6 @@ import java.util.function.Function;
 import org.springframework.hateoas.Link;
 import reactor.core.publisher.Mono;
 
-import com.github.antoinecheron.hypermedia.resource.HypermediaControlBuilder;
-
 public class ExternalHyperlink<T> implements HypermediaControlBuilder<T> {
 
   private final String name;

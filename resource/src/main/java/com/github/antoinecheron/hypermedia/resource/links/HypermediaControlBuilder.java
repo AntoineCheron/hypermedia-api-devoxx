@@ -1,4 +1,4 @@
-package com.github.antoinecheron.hypermedia.resource;
+package com.github.antoinecheron.hypermedia.resource.links;
 
 import org.springframework.hateoas.Link;
 import reactor.core.publisher.Mono;

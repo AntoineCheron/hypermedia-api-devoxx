@@ -1,4 +1,4 @@
-package com.github.antoinecheron.hypermedia.resource.aspects;
+package com.github.antoinecheron.hypermedia.resource.spring.aspects;
 
 import java.util.Collection;
 import java.util.Optional;
