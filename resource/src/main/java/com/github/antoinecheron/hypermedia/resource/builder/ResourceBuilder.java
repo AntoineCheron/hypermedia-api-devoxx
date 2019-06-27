@@ -1,8 +1,14 @@
-package com.github.antoinecheron.hypermedia.resource;
+package com.github.antoinecheron.hypermedia.resource.builder;
 
 import java.util.*;
 import java.util.function.Predicate;
 
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.RepresentationModel;
+
+import com.github.antoinecheron.hypermedia.resource.LinkHolder;
+import com.github.antoinecheron.hypermedia.resource.Resource;
 import com.github.antoinecheron.hypermedia.resource.links.ExternalHyperlink;
 import com.github.antoinecheron.hypermedia.resource.links.ExternalHypermediaControl;
 import com.github.antoinecheron.hypermedia.resource.links.HypermediaControlBuilder;
@@ -10,40 +16,44 @@ import com.github.antoinecheron.hypermedia.resource.links.InternalOperationLink;
 import com.github.antoinecheron.hypermedia.resource.providers.LinkProvider;
 import com.github.antoinecheron.hypermedia.resource.providers.OperationProvider;
 
-public final class ResourceBuilder<T, C> {
+public abstract class ResourceBuilder<T, C, RM extends RepresentationModel<RM>> {
 
-  private final Class<T> resourceType;
-  private final Class<C> controllerClass;
-  private Optional<HypermediaControlBuilder<T>> selfLinkBuilder;
+  protected final Class<T> resourceType;
+  protected final Class<C> controllerClass;
+  protected Optional<HypermediaControlBuilder<T>> selfLinkBuilder;
 
-  private ResourceBuilder(Class<T> resourceType, Class<C> controllerClass) {
+  protected ResourceBuilder(Class<T> resourceType, Class<C> controllerClass) {
     this.resourceType = resourceType;
     this.controllerClass = controllerClass;
     this.selfLinkBuilder = Optional.empty();
   }
 
-  public static <A, C> ResourceBuilder<A, C> of(Class<A> resourceType, Class<C> controllerClass) {
-    return new ResourceBuilder<>(resourceType, controllerClass);
+  public static <A, C> ResourceBuilder<A, C, EntityModel<A>> ofEntity(Class<A> resourceType, Class<C> controllerClass) {
+    return EntityResourceBuilder.of(resourceType, controllerClass);
   }
 
-  public ResourceBuilder<T, C> withSelfLink(OperationProvider<T, C> methodCall) {
+  public static <A, CA extends Collection<A>, C> ResourceBuilder<CA, C, CollectionModel<A>> ofCollection(Class<CA> resourceType, Class<C> controllerClass) {
+    return CollectionResourceBuilder.of(resourceType, controllerClass);
+  }
+
+  public ResourceBuilder<T, C, RM> withSelfLink(OperationProvider<T, C> methodCall) {
     this.selfLinkBuilder = Optional.of(new InternalOperationLink<>("self", controllerClass, methodCall));
     return this;
   }
 
-  public ResourceBuilder<T, C>.Operations withOperations() {
+  public ResourceBuilder<T, C, RM>.Operations withOperations() {
     return new Operations(resourceType, controllerClass, this.selfLinkBuilder);
   }
 
-  public ResourceBuilder<T, C>.InternalLinks withInternalLinks() {
+  public ResourceBuilder<T, C, RM>.InternalLinks withInternalLinks() {
     return new InternalLinks(resourceType, this.selfLinkBuilder, Collections.emptyMap());
   }
 
-  public ResourceBuilder<T, C>.ExternalLinks withExternalLinks() {
+  public ResourceBuilder<T, C, RM>.ExternalLinks withExternalLinks() {
     return new ExternalLinks(resourceType, this.selfLinkBuilder, Collections.emptyMap(), Collections.emptyMap());
   }
 
-  public Resource<T> build() {
+  public Resource<T, RM> build() {
     return withExternalLinks().build();
   }
 
@@ -83,7 +93,7 @@ public final class ResourceBuilder<T, C> {
       return new ExternalLinks(resourceType, this.selfLinkBuilder, Collections.unmodifiableMap(selfOperationsResolver), Collections.emptyMap());
     }
 
-    public Resource<T> build() {
+    public Resource<T, RM> build() {
       return withExternalLinks().build();
     }
 
@@ -121,7 +131,7 @@ public final class ResourceBuilder<T, C> {
       return new ExternalLinks(resourceType, this.selfLinkBuilder, Collections.unmodifiableMap(selfOperationsResolver), Collections.unmodifiableMap(internalLinksResolver));
     }
 
-    public Resource<T> build() {
+    public Resource<T, RM> build() {
       return withExternalLinks().build();
     }
 
@@ -129,11 +139,11 @@ public final class ResourceBuilder<T, C> {
 
   public final class ExternalLinks {
 
-    private final Class<T> resourceType;
-    private Optional<HypermediaControlBuilder<T>> selfLinkBuilder;
-    private final Map<String, LinkHolder<T>> selfOperationsResolver;
-    private final Map<String, LinkHolder<T>> internalLinksResolver;
-    private final Map<String, LinkHolder<T>> externalLinksResolver;
+    protected final Class<T> resourceType;
+    protected Optional<HypermediaControlBuilder<T>> selfLinkBuilder;
+    protected final Map<String, LinkHolder<T>> selfOperationsResolver;
+    protected final Map<String, LinkHolder<T>> internalLinksResolver;
+    protected final Map<String, LinkHolder<T>> externalLinksResolver;
 
     public ExternalLinks(Class<T> resourceType, Optional<HypermediaControlBuilder<T>> selfLinkBuilder, Map<String, LinkHolder<T>> selfOperationsResolver, Map<String, LinkHolder<T>> internalLinksResolver) {
       this.resourceType = resourceType;
@@ -179,12 +189,14 @@ public final class ResourceBuilder<T, C> {
       return toOperation(relationName, swaggerUrl, operationId, ALWAYS_AVAILABLE);
     }
 
-    public Resource<T> build() {
-      return new Resource<>(resourceType, selfLinkBuilder, selfOperationsResolver, internalLinksResolver, externalLinksResolver);
+    public Resource<T, RM> build() {
+      return ResourceBuilder.this.build(this);
     }
 
   }
 
-  private final Predicate<T> ALWAYS_AVAILABLE = ignored -> true;
+  protected abstract Resource<T, RM> build(ExternalLinks externalLinksBuilder);
+
+  protected final Predicate<T> ALWAYS_AVAILABLE = ignored -> true;
 
 }

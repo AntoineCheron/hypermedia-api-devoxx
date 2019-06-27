@@ -5,21 +5,24 @@ import java.util.stream.Collectors;
 
 import lombok.Getter;
 
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.RepresentationModel;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import com.github.antoinecheron.hypermedia.resource.builder.ResourceBuilder;
 import com.github.antoinecheron.hypermedia.resource.links.HypermediaControlBuilder;
 
-public class Resource<T> {
+public abstract class Resource<T, RM extends RepresentationModel<RM>> {
 
-  @Getter private final Class<T> resourceType;
-  private Optional<HypermediaControlBuilder<T>> selfLinkBuilder;
-  @Getter private final Map<String, LinkHolder<T>> selfOperationsResolver;
-  @Getter private final Map<String, LinkHolder<T>> internalLinksResolver;
-  @Getter private final Map<String, LinkHolder<T>> externalLinksResolver;
-  @Getter private final Map<String, LinkHolder<T>> availableLinksResolver;
+  @Getter protected final Class<T> resourceType;
+  protected Optional<HypermediaControlBuilder<T>> selfLinkBuilder;
+  @Getter protected final Map<String, LinkHolder<T>> selfOperationsResolver;
+  @Getter protected final Map<String, LinkHolder<T>> internalLinksResolver;
+  @Getter protected final Map<String, LinkHolder<T>> externalLinksResolver;
+  @Getter protected final Map<String, LinkHolder<T>> availableLinksResolver;
 
   Resource(Class<T> resourceType, Optional<HypermediaControlBuilder<T>> maybeSelfLinkBuilder, Map<String, LinkHolder<T>> selfOperationsResolver, Map<String, LinkHolder<T>> internalLinksResolver, Map<String, LinkHolder<T>> externalLinksResolver) {
     this.resourceType = resourceType;
@@ -38,11 +41,7 @@ public class Resource<T> {
     this.availableLinksResolver = availableLinksResolver;
   }
 
-  public Mono<EntityModel<T>> entityRepresentation(T resourceState) {
-    // TODO: support CollectionModel and PagedModel
-    return this.resolveAllAvailableLinks(resourceState)
-      .map(links -> new EntityModel<>(resourceState, links));
-  }
+  public abstract Mono<RM> representation(T resourceState);
 
   public boolean isOperationAvailable(String operationId, T resourceWithState) {
     return Optional.of(this.selfOperationsResolver.get(operationId))
@@ -70,7 +69,7 @@ public class Resource<T> {
     return this.resolveAvailableLinks(this.availableLinksResolver, resourceState);
   }
 
-  private Mono<List<Link>> resolveAvailableLinks(Map<String, LinkHolder<T>> input, T resourceState) {
+  protected Mono<List<Link>> resolveAvailableLinks(Map<String, LinkHolder<T>> input, T resourceState) {
     final List<Mono<Link>> links = input
       .values()
       .stream()
@@ -80,8 +79,12 @@ public class Resource<T> {
     return Flux.merge(links).collectList();
   }
 
-  public static <A, C> ResourceBuilder<A, C> builder(Class<A> resourceClass, Class<C> controllerClass) {
-    return ResourceBuilder.of(resourceClass, controllerClass);
+  public static <A, C> ResourceBuilder<A, C, EntityModel<A>> entityBuilder(Class<A> resourceClass, Class<C> controllerClass) {
+    return ResourceBuilder.ofEntity(resourceClass, controllerClass);
+  }
+
+  public static <A, CA extends Collection<A>, C> ResourceBuilder<CA, C, CollectionModel<A>> collectionBuilder(Class<CA> collectionClass, Class<C> controllerClass) {
+    return ResourceBuilder.ofCollection(collectionClass, controllerClass);
   }
 
 }
